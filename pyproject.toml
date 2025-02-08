@@ -1,11 +1,10 @@
 [project]
 name = "task-timer"
-version = "0.1.0"
-description = "Add your description here"
+version = "1.0.0"
+description = "This Task Timer is able to time tasks."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "click>=8.1.8",
     "rich>=13.9.4",
 ]
 

@@ -2,8 +2,9 @@
 
 ## Description
 
-This Task Timer will be able to time a task.  
-The user is able to start, see current running task, stop, and print out summary.
+This Task Timer is able to time tasks.  
+The user can start and end a task, see the current tasks, and
+see a time sheet of current and past tasks.
 
 
 ## Usage
