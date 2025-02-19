@@ -28,7 +28,7 @@ def main():
     while current_request != 'done':
 
         console.print('\nWhat would you like to do? Please select a command:', style="bold green")
-        console.print('start, end, current, time sheet, done:', style="bold cyan")
+        console.print('start, end, current, time sheet, done, help:', style="bold cyan")
         current_request = input()
 
 
@@ -48,12 +48,18 @@ def main():
             console.print('\nWhat is the name of your task:', style="bold green")
             name = input()
 
-            end_time = datetime.datetime.now()
-            start_time = current_list_of_tasks[name]
-            total_time = end_time - start_time
-            completed_list_of_tasks[name] = total_time
-            del current_list_of_tasks[name]
-            console.print(f"Total time of the [bold yellow]{name}[/bold yellow] task was: [bold yellow]{total_time}[/bold yellow]" , style="bold magenta")
+            try:
+                current_list_of_tasks[name]
+            except:
+                console.print(f'Sorry but [bold yellow]{name}[/bold yellow] task does not exist.', style="red")
+            else:
+                end_time = datetime.datetime.now()
+                start_time = current_list_of_tasks[name]
+                total_time = end_time - start_time
+                completed_list_of_tasks[name] = total_time
+                current_list_of_tasks.pop(name)
+                console.print(f"Total time of the [bold yellow]{name}[/bold yellow] task was: [bold yellow]{total_time}[/bold yellow]" , style="bold magenta")
+                
 
 
 
@@ -79,12 +85,25 @@ def main():
                 total_time = current_time - value
                 console.print(f"Current time of the [bold yellow]{key}[/bold yellow] task is: [bold yellow]{total_time}[/bold yellow]" , style="bold magenta")
 
-
+        
         # If done command, closes the program.
         # This is the escape.
         elif current_request == 'done':
             console.print("Bye!!! :D", style="blink bold blue on white")
             break
+
+        # If help command, gives descriptions for the other commands
+        elif current_request == 'help':
+            console.print('\nThere are 6 commands that you can run:', style="bold magenta")
+            console.print('[bold cyan]start[/bold cyan] -> Asks for the name of the task, then starts timing the task.', style="bold green")
+            console.print('[bold cyan]end[/bold cyan] -> Asks for the name of the task, then ends the task'
+                          '\n       and gives the time of the task.', style="bold green")            
+            console.print('[bold cyan]current[/bold cyan] -> Gives the current time for all of the current running tasks.', style="bold green")
+            console.print('[bold cyan]time sheet[/bold cyan] -> Gives the current time for all of the running tasks,'
+                          '\n              and the total time for all the completed tasks.', style="bold green")
+            console.print('[bold cyan]done[/bold cyan] -> Ends the program.', style="bold green")
+            console.print('[bold cyan]help[/bold cyan] -> Gives descriptions for the other commands.', style="bold green")
+
 
         # If commmand not typed correctly, give error message and restart the loop.
         else:
