@@ -12,62 +12,102 @@ import datetime
 from rich.console import Console
 
 
-def start(current_list_of_tasks1, console):
-    """Asks for name and adds the time to the current task dict"""
+class Task:
+    """ A Task object has a name, time started, and time completed.  
+        It can be called to be marked as completed, compute the current time or total time.
+    """
+
+
+    def __init__(self, name):
+        """
+        Initializes Task with name, 
+
+        name: The name of the task.
+        time_started: The time that the task was started.
+        time_completed: When the task is initialized, it is set to None, 
+                        since we do not know when it will be completed.
+        """
+        self.name = name
+        self.time_started = datetime.datetime.now()
+        self.time_completed = None
+
+
+    def task_completed(self):
+        """ Stores the time when the task was completed."""
+        self.time_completed = datetime.datetime.now()
+
+    def current_time(self):
+        """ Computes the how long the task has currently been running."""
+        current_time = datetime.datetime.now() - self.time_started
+        return current_time
+
+    def total_time(self):
+        """ Computes the how long the task was."""
+        total_time = self.time_completed - self.time_started
+        return total_time
+
+
+
+
+
+def start(list_of_tasks, console):
+    """Asks for name and makes a task instance and adds to the list"""
+
     console.print('\nWhat is the name of your task:', style="bold green")
     name = input()
 
-    current_time = datetime.datetime.now()
-    current_list_of_tasks1[name] = current_time
+    started_task = Task(name)
+    list_of_tasks.append(started_task)
     console.print(f"[bold yellow]{name}[/bold yellow] task timer is starting now." , style="bold magenta")
 
 
-def end(current_list_of_tasks, completed_list_of_tasks, console):
-    """ If end command, ask for name and ends tasks.
-    
-        It does this by seeing if the name exists in the current dict,
-        then if it does adds the total time to the completed task dict,
-        and removes this task from current tasks dict.
-        If name does not exists, says that it does not and exits the function.
-    """
+def end(list_of_tasks, console):
+    """ If end command, ask for name and ends tasks."""
+
     console.print('\nWhat is the name of your task:', style="bold green")
     name = input()
 
-    # Sees if the task exists in the current dict
-    try:
-        current_list_of_tasks[name]
-    # If not, prints out that it does not exist
-    except:
-        console.print(f'Sorry but [bold yellow]{name}[/bold yellow] task does not exist.', style="red")
-    # If it does exist, adds the total time to the completed task dict
-    # and removes the task from current tasks dict
-    else:
-        end_time = datetime.datetime.now()
-        start_time = current_list_of_tasks[name]
-        total_time = end_time - start_time
-        completed_list_of_tasks[name] = total_time
+    # Finds the task to end by name
+    cur_task = None
+    for task in list_of_tasks:
+        if task.name == name and task.time_completed == None:
+            cur_task = task
+            break
 
-        current_list_of_tasks.pop(name)
-        console.print(f"Total time of the [bold yellow]{name}[/bold yellow] task was: [bold yellow]{total_time}[/bold yellow]" , style="bold magenta")
+    # If task is not in list, say so and break out
+    if cur_task == None:
+        console.print(f"Task [bold yellow]{name}[/bold yellow] does not exist", style="bold red")
+        return
+
+    # If task was in list, complete it and find total_time
+    cur_task.task_completed()
+    total_time = cur_task.total_time()
+    console.print(f"Total time of the [bold yellow]{name}[/bold yellow] task was: [bold yellow]{total_time}[/bold yellow]" , style="bold magenta")
 
 
 
-def current(current_list_of_tasks, console):
-    """Gets current tasks by looping through current task dict"""
+
+def current(list_of_tasks, console):
+    """Gets current tasks by looping through list, finding current tasks, and computes the time."""
+
     console.print("\nCurrent tasks:",style="bold green")
-    for key, value in current_list_of_tasks.items():
-        current_time = datetime.datetime.now()
-        total_time = current_time - value
-        console.print(f"Current time of the [bold yellow]{key}[/bold yellow] task is: [bold yellow]{total_time}[/bold yellow]" , style="bold magenta")
+
+    for task in list_of_tasks:
+        if task.time_completed == None:
+            current_time = task.current_time()
+            console.print(f"Current time of the [bold yellow]{task.name}[/bold yellow] task is: [bold yellow]{current_time}[/bold yellow]" , style="bold magenta")
 
 
-def time_sheet(current_list_of_tasks, completed_list_of_tasks, console):
-    """Gets current tasks by calling current and completed tasks by looping through completed dict."""
-    current(current_list_of_tasks, console)
+
+def time_sheet(list_of_tasks, console):
+    """Gets current tasks by calling current and completed tasks by finding completed tasks, and computes the time"""
+    current(list_of_tasks, console)
 
     console.print("\nCompleted tasks:",style="bold cyan")
-    for key, value in completed_list_of_tasks.items():
-        console.print(f"Total time of the [bold yellow]{key}[/bold yellow] task was: [bold yellow]{value}[/bold yellow]" , style="bold magenta")
+    for task in list_of_tasks:
+        if task.time_completed != None:
+            console.print(f"Total time of the [bold yellow]{task.name}[/bold yellow] task was: [bold yellow]{task.total_time()}[/bold yellow]" , style="bold magenta")
+
 
 
 def done(console):
@@ -96,9 +136,8 @@ def main():
     # Initalize the Console for the rich text prints.
     console = Console()
 
-    # Initalize the dicts for keeping the current and completed tasks.
-    current_list_of_tasks = {}
-    completed_list_of_tasks = {}
+    # Initalize the list for keeping all of the tasks.
+    list_of_tasks = []
 
     console.print("Hello welcome to Task Timer!!!", style="bold purple")
 
@@ -111,23 +150,22 @@ def main():
         current_request = input()
 
 
-        # If start command, ask for name and add the time to the current task dict.
+        # If start command, ask for name and add the time to the list.
         if current_request == 'start':
-            start(current_list_of_tasks, console)
+            start(list_of_tasks, console)
         
-        # If end command, ask for name and add the total time to the completed task dict.
-        # And remove this task from current tasks dict.
+        # If end command, ask for name and end the task
         elif current_request == 'end':
-            end(current_list_of_tasks, completed_list_of_tasks, console)
+            end(list_of_tasks, console)
 
 
-        # If time_sheet command, get current tasks and completed tasks by looping through both dicts.
+        # If time_sheet command, get current tasks and completed tasks by looping through the list.
         elif current_request == 'time sheet':
-            time_sheet(current_list_of_tasks, completed_list_of_tasks, console)
+            time_sheet(list_of_tasks, console)
             
-        # If current command, get current tasks by looping through current task dict.
+        # If current command, get current tasks by looping through the list.
         elif current_request == 'current':
-            current(current_list_of_tasks, console)
+            current(list_of_tasks, console)
 
         
         # If done command, closes the program.
