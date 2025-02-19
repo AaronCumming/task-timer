@@ -9,7 +9,7 @@ see a time sheet of current and past tasks.
 
 ## Usage
 
-To run program type from the command line:
+To run the program, type the following from the command line:
 ```
 uv run task-timer
 ```
